@@ -1554,6 +1554,7 @@ AddOutputFilter chunkFilter
 		<Item Name="All Sensors.vi" Type="VI" URL="../All Sensors.vi"/>
 		<Item Name="Single Sensor.vi" Type="VI" URL="../Single Sensor.vi"/>
 		<Item Name="Three Sensors.vi" Type="VI" URL="../Three Sensors.vi"/>
+		<Item Name="Test Sensing.vi" Type="VI" URL="../Test Sensing.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="AI IRQ FPGA Reference.ctl" Type="VI" URL="/&lt;vilib&gt;/myRIO/Common/Instrument Driver Framework/myRIO v1.0/IRQ/typedefs/AI IRQ FPGA Reference.ctl"/>

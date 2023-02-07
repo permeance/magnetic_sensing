@@ -1,3 +1,4 @@
+function  [pm_hat_0, pm_hat_0] = Magnetic_localication_small (filename)
 %% Magnetically steerable catheter magnetic localization simulation
 % model: ideal dipole model
 % sensor configuration: 1. rectangular sensor array
@@ -15,9 +16,6 @@ OD_mag = 3.175e-3;  % outer diameter of PM  [m]
 ID_mag = OD_mag/2;  % inner diameter of PM  [m]
 length_mag = OD_mag*2;   % length of PM  [m]
 V_pm = pi*(OD_mag^2-ID_mag^2^2)/4*length_mag;  % volume of PM
-
-% %cube
-% V_pm = (0.25*0.0254)^3;
 
 Br = 1.48; % magnetic remanance
 
@@ -40,7 +38,6 @@ R = (79.67/2)*1e-3;  % circular sensor array radius [m]
 
 %% Loading measured data
 
-filename = '1-28-23 Small Magnet Centered 2G 2';
 B_meas = B_array(filename);
 
 %% 4x4 Circular sensor array confuguration
@@ -159,46 +156,6 @@ pm_hat_0 = [-0.0;0.089;-0.00;pi/2;pi/2;M];   % (x_hat0,y_hat0,z_hat0,theta_hat0,
 % Compute Analytic Jacobian matrix： J <- R^(m x n) here
 % J = Analytic_Jacobian_Mag_cir_array(pm_hat_0,xyz_s,meas_dir_s);
 
-
-% % Levenberg–Marquardt least square algorithm solving for optimal position/orientation estimation
-% % test
-% B_meas = [0.002251179	-0.020839231	-0.171442474...
-% 0.006875	0.142812392	-0.144833417...
-% 0.01285366	0.161834937	0.105902026...
-% 0.010088173	0.004057622	0.150368801...
-% -0.015909321	0.004523515	-0.137550776...
-% -0.014102385	0.145051269	-0.080955077...
-% -0.002149897	0.125658074	0.136420404...
-% 0.001431494	-0.011081308	0.152168353...
-% 0.007019372	-0.003387205	-0.158306083...
-% 0.117458167	0.241229167	-0.126916583...
-% 0.057395353	0.119627699	0.161721744...
-% 0.006132513	-0.01141294	0.134657994...
-% -0.009514923	0.011241442	-0.133309808...
-% -0.008916538	0.143974346	-0.054775538...
-% -0.00439925	0.109192887	0.145673019...
-% -0.00723566	-0.018559372	0.141078103...
-% ]*1e-4;
-% 
-% % B_meas = [-0.054884641	-0.188673179	-1.630955385...
-% % -0.035777833	1.444389167	-1.519999667...
-% % -0.004972333	1.734195555	1.134027583...
-% % 0.0009165	0.053888942	1.522195...
-% % -0.163301314	0.072401708	-1.358174128...
-% % -0.141640923	1.414640769	-0.891794769...
-% % 0.039333462	1.299871015	1.267307308...
-% % 0.079897462	-0.077589638	1.415100769...
-% % 0.07445309	0.014440013	-1.390180827...
-% % 0.303611083	1.373999833	-1.02980625...
-% % 0.150749917	1.282334417	0.984083417...
-% % 0.032611083	0.055166667	1.221527583...
-% % -0.014692385	0.180356946	-1.154252115...
-% % 0.019077077	1.2633323	-0.579076946...
-% % 0.076948615	1.097820531	1.115537615...
-% % 0.061307923	-0.0332051	1.214179...
-% % ]*1e-4;
-
-
 pm_hat_opt = PM_backward_estimation(B_meas',pm_hat_0,G,xyz_s,meas_dir_s); 
 
 % weighting among parameters to be added!
@@ -214,72 +171,8 @@ G = [G_x;G_y;G_z];
 B_measure_theoretical = PM_forward_field(G,pm_hat_opt,xyz_s,meas_dir_s);
 B_err = (B_meas - B_measure_theoretical)./B_measure_theoretical;
 XYZ_estimation_plots(B_meas, B_measure_theoretical)
-%% Timeline estimation
-% use the current estimation for next step initial guess
-% record the estimation history
-% record the requiered computation time
-pm_est_history = zeros(n_t,5);
-pm_err_history = zeros(n_t,5);
-comp_time_history = zeros(n_t,1);
-pm_last = pm_hat_0;
-for i = 1:n_t
-    tic
-    B_meas_i = B_meas(i,:)';
-    pm_last = PM_backward_estimation(B_meas_i,pm_last,M,G,xyz_s,meas_dir_s); 
-    pm_est_history(i,:) = pm_last;
-    pm_err_history(i,:) = pm_last - pm_all; 
-    comp_time_history(i) = toc;
-end
 
-% post data process: compute the standard deviation
-mean_out = mean(pm_est_history);
-sigma_out = std(pm_est_history);
-
-% noise level ratio
-J_1 = sigma_out/noise_sigma;
-
-% position error
-
-
-% plot the estimation over time
-figure()
-plot(t,pm_err_history(:,1))
-xlabel('Time [s]')
-ylabel(' X position [m]')
-title('X position estimation error over time')
-
-figure()
-plot(t,pm_err_history(:,2))
-xlabel('Time [s]')
-ylabel(' Y position [m]')
-title('Y position estimation error over time')
-
-figure()
-plot(t,pm_err_history(:,3))
-xlabel('Time [s]')
-ylabel(' Z position [m]')
-title('Z position estimation error over time')
-
-figure()
-plot(t,pm_err_history(:,4))
-xlabel('Time [s]')
-ylabel(' Theta orientation [rad]')
-title('Theta orientation estimation error over time')
-
-figure()
-plot(t,pm_err_history(:,5))
-xlabel('Time [s]')
-ylabel(' Phi orientation [rad]')
-title('Phi orientation estimation error over time')
-
-
-figure
-plot(t,comp_time_history)
-xlabel('Time [s]')
-ylabel('Computation time [s]')
-
-
-
+end 
 
 
 

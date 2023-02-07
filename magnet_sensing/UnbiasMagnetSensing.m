@@ -2,15 +2,17 @@
 clear all
 clc
 % Write names of files below
-no_magnet_filename = '1-27-23_NoMagnet';
-center_magnet_filename = 'centered_magnet_sensing';
+no_magnet_filename = '1-28-23 No Magnet 2G 2';
+center_magnet_filename = '1-28-23 Small Magnet Centered 2G 2';
+earth_field_filename = '1-28-23 EarthMagneticField Small 2G .xlsx';
+unbias_filename = '1-28-23 UnbiasMagnetSensing Small 2G 2.xls';
 
 %%initializing data from files
 no_magnet_dict = sensorDataRead(no_magnet_filename);
-no_magent_average = readtable(append(no_magnet_filename, '_data.xls'), 'Sheet', 'Averages');
+no_magent_average = readtable(append(no_magnet_filename, ' Processed.xls'), 'Sheet', 'Averages');
 
-writetable(no_magent_average, 'EarthMagneticField.xlsx');
-earth_field = readtable('EarthMagneticField.xlsx');
+writetable(no_magent_average, earth_field_filename);
+earth_field = readtable(earth_field_filename);
 
 center_magnet_dict = sensorDataRead(center_magnet_filename);
 
@@ -39,12 +41,12 @@ for sensor_step = 1:length(keys(center_magnet_dict))
 end
 
 for j=1:length(keys(center_magnet_dict))
-  writetable(unbias_sensing_list{j},'UnbiasMagnetSensing.xls','Sheet', sensor_names{j});
+  writetable(unbias_sensing_list{j},unbias_filename,'Sheet', sensor_names{j});
 end
 Unbias_sensor_dict = dictionary(sensor_names',unbias_sensing_list);
 [avg_Unbiased,StD_Unbiased] =  average_XYZ(Unbias_sensor_dict);
-writetable(avg_Unbiased,'UnbiasMagnetSensing.xls','Sheet', 'Averages');
-writetable(StD_Unbiased,'UnbiasMagnetSensing.xls','Sheet', 'StDeviation');
+writetable(avg_Unbiased,unbias_filename,'Sheet', 'Averages');
+writetable(StD_Unbiased,unbias_filename,'Sheet', 'StDeviation');
 
 
 
@@ -66,7 +68,7 @@ for sensor_count = 1:size(keys(Unbias_sensor_dict))
     plot(time_step,Y_graph)
     plot(time_step,Z_graph)
     title(sensor_names(sensor_count))
-    ylim([-0.1 0.1])
+%     ylim([-0.1 0.1])
 %     legend('X','Y','Z')
     
 end 
